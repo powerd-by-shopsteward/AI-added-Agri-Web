@@ -7406,128 +7406,136 @@ a[href^="#/invoice/"]:hover, a[href^="#/customer/"]:hover {
   };
 })();
 </script>
-   <style>
+ <style>
 /* ============================================================
-   TRUE LIQUID GLASS MASTER OVERRIDE (Forces all elements)
+   PREMIUM GLASS SIDEBAR & COLLAPSE ANIMATION
    ============================================================ */
 
-/* 1. The Glass Containers (Cards, Panels, Modals) */
-.card, .dash-kpi, .dash-panel, .modal, .login-box, .calc {
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.08) 0%, 
-    rgba(255, 255, 255, 0.02) 40%, 
-    rgba(0, 0, 0, 0.2) 100%
-  ) !important;
-  
-  backdrop-filter: blur(28px) saturate(200%) contrast(110%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(200%) contrast(110%) !important;
-  
-  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.4) !important;
-  
-  border-radius: 24px !important;
-  
-  /* Deep 3D shadows + inner white rim light */
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3) !important;
-    
-  position: relative;
-  overflow: hidden;
-}
-
-/* 2. The Liquid Specular Highlight (The shiny top-left curve) */
-.card::before, .dash-kpi::before, .dash-panel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 50%;
-  background: radial-gradient(
-    800px circle at 0% 0%, 
-    rgba(255, 255, 255, 0.08) 0%, 
-    transparent 50%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* 3. Make sure content sits above the shine */
-.card > *, .dash-kpi > *, .dash-panel > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* 4. The Sidebar Glass */
+/* 1. Make the Sidebar Pure Glass */
 .sidebar {
-  background: linear-gradient(180deg, 
-    rgba(20, 20, 25, 0.7) 0%, 
-    rgba(5, 5, 8, 0.85) 100%
-  ) !important;
-  backdrop-filter: blur(30px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(30px) saturate(150%) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5) !important;
+  background: rgba(10, 15, 12, 0.45) !important; /* More transparent */
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3) !important;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease !important;
+  overflow: hidden; /* Prevents text wrap during animation */
 }
 
-/* 5. Sidebar Active Pill (Glowing Glass) */
-.nav a.active {
-  background: linear-gradient(135deg, 
-    rgba(34, 197, 94, 0.25) 0%, 
-    rgba(22, 163, 74, 0.05) 100%
-  ) !important;
-  border: 1px solid rgba(74, 222, 128, 0.3) !important;
-  box-shadow: 
-    0 4px 15px rgba(34, 197, 94, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+/* 2. Collapsed State (Vertical Pill) */
+body.sidebar-collapsed .sidebar {
+  width: 80px !important;
+  padding: 16px 10px !important;
+  align-items: center;
 }
 
-/* 6. Inputs (Frosted Glass Fields) */
-.input, input.input, select.input, textarea.input {
-  background: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3) !important;
-  color: #fff !important;
-  border-radius: 12px !important;
-  transition: all 0.3s ease;
-}
-.input:focus {
-  background: rgba(0, 0, 0, 0.5) !important;
-  border-color: rgba(74, 222, 128, 0.5) !important;
-  box-shadow: 
-    0 0 0 3px rgba(34, 197, 94, 0.15),
-    inset 0 2px 5px rgba(0, 0, 0, 0.3) !important;
-  outline: none !important;
+body.sidebar-collapsed .brand {
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-/* 7. Buttons (Glossy Pill Shape) */
-.btn-primary, .btn-gold, #sub-main-btn {
-  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 4px 15px rgba(34, 197, 94, 0.3) !important;
-  color: #fff !important;
-  border-radius: 999px !important;
+body.sidebar-collapsed .brand-text {
+  display: none !important;
 }
 
-.btn-ghost {
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+/* Hide text by setting font-size to 0, keep icons big */
+body.sidebar-collapsed .nav a {
+  justify-content: center !important;
+  padding: 12px 0 !important;
+  font-size: 0 !important; 
 }
 
-/* 8. Tables (Clean, dark glass rows) */
-table tbody tr:hover td {
-  background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+body.sidebar-collapsed .nav a span {
+  font-size: 20px !important;
+  margin: 0 !important;
+}
+
+/* Hide bottom buttons and Pro Plan pill when collapsed */
+body.sidebar-collapsed #btn-calc,
+body.sidebar-collapsed #btn-lang,
+body.sidebar-collapsed #btn-logout,
+body.sidebar-collapsed #sub-sidebar-pill {
+  display: none !important;
+}
+
+/* Make the toggle button look good when collapsed */
+body.sidebar-collapsed #sidebar-toggle {
+  width: 40px !important;
+  padding: 8px !important;
+}
+
+/* Adjust main content smoothly */
+.layout > div {
+  transition: width 0.3s ease !important;
 }
 </style>
+
+<script>
+/* ============================================================
+   SIDEBAR COLLAPSE LOGIC
+   ============================================================ */
+(function() {
+  'use strict';
+
+  const originalRenderLayout = window.renderLayout;
+  if (typeof originalRenderLayout !== 'function') return;
+
+  window.renderLayout = function() {
+    originalRenderLayout.apply(this, arguments);
+    
+    // Small delay to ensure sidebar is rendered in the DOM
+    setTimeout(() => {
+      const sidebar = document.querySelector('.sidebar');
+      if (!sidebar) return;
+      
+      // 1. Restore saved state on page load
+      if (localStorage.getItem('sidebar_collapsed') === 'true') {
+        document.body.classList.add('sidebar-collapsed');
+      }
+      
+      // 2. Inject the toggle button
+      if (!document.getElementById('sidebar-toggle')) {
+        const toggleBtn = document.createElement('button');
+        toggleBtn.id = 'sidebar-toggle';
+        toggleBtn.className = 'btn btn-ghost';
+        toggleBtn.style.cssText = `
+          width: 100%;
+          margin-bottom: 16px;
+          padding: 8px;
+          display: flex;
+          justify-content: center;
+          font-size: 18px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        `;
+        
+        // Insert right after the brand/logo
+        const brand = sidebar.querySelector('.brand');
+        if (brand) {
+          brand.parentNode.insertBefore(toggleBtn, brand.nextSibling);
+        } else {
+          sidebar.insertBefore(toggleBtn, sidebar.firstChild);
+        }
+        
+        // Set correct icon based on current state
+        const updateIcon = () => {
+          const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+          toggleBtn.innerHTML = isCollapsed ? '▶' : '☰'; 
+        };
+        updateIcon();
+        
+        // 3. Click logic
+        toggleBtn.onclick = function() {
+          document.body.classList.toggle('sidebar-collapsed');
+          const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+          localStorage.setItem('sidebar_collapsed', isCollapsed);
+          updateIcon();
+        };
+      }
+    }, 50);
+  };
+})();
+</script>
 </body>
 </html>
