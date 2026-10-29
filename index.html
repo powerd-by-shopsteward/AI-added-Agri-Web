@@ -7408,138 +7408,144 @@ a[href^="#/invoice/"]:hover, a[href^="#/customer/"]:hover {
 </script>
  <style>
 /* ============================================================
-   ULTIMATE LIQUID GLASS THEME
-   High-gloss, refractive, edge-lit.
+   FINAL LIQUID GLASS + DARK PILL HOVER + SIDEBAR FIX
    ============================================================ */
 
-/* 1. Background Darkening (So text pops, but colors bleed through) */
+/* 1. Background (Slightly darkened for better baseline contrast) */
 body {
   background-image: 
-    linear-gradient(rgba(5, 10, 8, 0.65), rgba(5, 10, 8, 0.85)), 
+    linear-gradient(rgba(8, 12, 10, 0.75), rgba(5, 8, 6, 0.85)), 
     url('background.jpg') !important;
   background-size: cover !important;
   background-position: center !important;
   background-attachment: fixed !important;
-  background-color: #000 !important;
 }
 
 /* 2. The Liquid Glass Cards */
 .card, .dash-kpi, .dash-panel, .modal, .login-box, .calc, .ss-dropdown {
   position: relative;
-  /* Highly transparent base with a subtle white gradient tint */
+  /* Darker, more opaque tint so the text stands out */
   background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.12) 0%, 
-    rgba(255, 255, 255, 0.03) 50%, 
-    rgba(0, 0, 0, 0.2) 100%
+    rgba(20, 25, 22, 0.7) 0%, 
+    rgba(10, 15, 12, 0.5) 100%
   ) !important;
   
-  /* High blur + High saturation for the liquid refraction */
-  backdrop-filter: blur(28px) saturate(220%) brightness(1.1) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(220%) brightness(1.1) !important;
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
   
-  /* CRITICAL: The Edge Lighting (Thick Glass Bevel) */
-  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  /* Sharp liquid glass bevel edges */
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.2) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.5) !important;
   
-  border-radius: 24px !important;
+  border-radius: 20px !important;
   
-  /* Deep shadows + inner rim light for thickness */
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3) !important;
-    
+    0 15px 35px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3) !important;
+  
   overflow: hidden;
 }
 
-/* 3. The "Wet" Glossy Reflection (Top half curve) */
+/* Wet Glass Reflection */
 .card::before, .dash-kpi::before, .dash-panel::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.15) 0%, 
-    rgba(255, 255, 255, 0.02) 60%, 
-    transparent 100%
-  );
-  border-radius: 24px 24px 50% 50% / 24px 24px 100% 100%;
+  top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  border-radius: 20px 20px 50% 50% / 20px 20px 100% 100%;
   pointer-events: none;
   z-index: 1;
 }
+.card > *, .dash-kpi > *, .dash-panel > * { position: relative; z-index: 2; }
 
-/* 4. Content sits above the gloss */
-.card > *, .dash-kpi > *, .dash-panel > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* 5. Text Readability (Crisp white + shadow) */
-h1, h2, h3, th, .dash-kpi-value, .dash-panel-title { 
+/* 3. TEXT VISIBILITY (Force pure white with shadow) */
+h1, h2, h3, th, td, p, span, .dash-kpi-value, .dash-kpi-label, .label { 
   color: #ffffff !important; 
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important; 
 }
-td, p, span, .dash-kpi-sub, .dash-kpi-label { 
-  color: #d1d5db !important; 
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
-}
+th, .dash-kpi-label { color: #d1d5db !important; }
 
-/* 6. Sidebar - Liquid Glass */
-.sidebar {
-  background: linear-gradient(180deg, rgba(10, 15, 12, 0.5) 0%, rgba(5, 8, 6, 0.7) 100%) !important;
-  backdrop-filter: blur(40px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease !important;
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3) !important;
+/* 4. THE DARK PILL HOVER (For Tables) */
+table tbody tr {
+  transition: all 0.2s ease !important;
 }
-
-/* 7. Inputs - Frosted Recessed */
-.input, input.input, select.input, textarea.input {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-/* 8. Table Row Hover - Subtle Glass Highlight */
 table tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(0, 0, 0, 0.85) !important; /* Dark Pill */
+  color: #ffffff !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
+/* Round the corners of the table row to make it a pill */
+table tbody tr:hover td:first-child {
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 12px !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+table tbody tr:hover td:last-child {
+  border-top-right-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 5. Sidebar Glass & Dark Pill Hover */
+.sidebar {
+  background: rgba(10, 15, 12, 0.6) !important;
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease !important;
+  overflow-x: hidden !important;
+}
+.nav a {
+  color: #a1a1aa !important;
+  transition: all 0.2s ease !important;
+  border-radius: 12px !important;
+  margin-bottom: 2px;
+  white-space: nowrap !important; /* Prevents text wrap */
+  overflow: hidden !important;
+}
+.nav a:hover {
+  background: rgba(0, 0, 0, 0.7) !important; /* Dark Pill Hover */
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
 
 /* ============================================================
-   SIDEBAR COLLAPSE FUNCTIONALITY (From previous step)
+   SIDEBAR COLLAPSE FIX (Forces text to hide completely)
    ============================================================ */
 body.sidebar-collapsed .sidebar {
   width: 80px !important;
+  min-width: 80px !important;
   padding: 16px 10px !important;
 }
-body.sidebar-collapsed .brand-text,
-body.sidebar-collapsed .nav a span + *,
+body.sidebar-collapsed .brand {
+  justify-content: center !important;
+}
+/* Hide brand text */
+body.sidebar-collapsed .brand-text {
+  display: none !important;
+}
+/* Hide bottom buttons and pro plan */
 body.sidebar-collapsed #btn-calc,
 body.sidebar-collapsed #btn-lang,
 body.sidebar-collapsed #btn-logout,
 body.sidebar-collapsed #sub-sidebar-pill {
   display: none !important;
 }
+/* THE MAGIC FIX: Set font-size to 0 on the link, then bring back the icon */
 body.sidebar-collapsed .nav a {
+  font-size: 0 !important; 
   justify-content: center !important;
   padding: 12px 0 !important;
 }
 body.sidebar-collapsed .nav a span {
-  font-size: 20px !important;
+  font-size: 20px !important; /* Brings back the emoji icon */
   margin: 0 !important;
 }
-body.sidebar-collapsed .brand {
-  justify-content: center !important;
-}
+
+/* Toggle Button */
 #sidebar-toggle {
   width: 100%;
   margin-bottom: 16px;
@@ -7554,45 +7560,67 @@ body.sidebar-collapsed .brand {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   transition: all 0.2s;
-  backdrop-filter: blur(10px);
 }
-#sidebar-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+#sidebar-toggle:hover { background: rgba(0, 0, 0, 0.7); }
 </style>
 
-<!-- The Toggle Script (Kept exactly as before to ensure it works) -->
 <script>
+/* ============================================================
+   FIXED SIDEBAR TOGGLE SCRIPT
+   ============================================================ */
 (function() {
   'use strict';
+
   function setupSidebar() {
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return;
+
+    // 1. Restore saved state
     if (localStorage.getItem('sidebar_collapsed') === 'true') {
       document.body.classList.add('sidebar-collapsed');
     }
+
+    // 2. Inject Toggle Button
     if (!document.getElementById('sidebar-toggle')) {
       const toggleBtn = document.createElement('div');
       toggleBtn.id = 'sidebar-toggle';
-      const brand = sidebar.querySelector('.brand');
-      if (brand) brand.parentNode.insertBefore(toggleBtn, brand.nextSibling);
-      else sidebar.insertBefore(toggleBtn, sidebar.firstChild);
       
+      const brand = sidebar.querySelector('.brand');
+      if (brand) {
+        brand.parentNode.insertBefore(toggleBtn, brand.nextSibling);
+      } else {
+        sidebar.insertBefore(toggleBtn, sidebar.firstChild);
+      }
+
+      // 3. Update Icon
       const updateIcon = () => {
         toggleBtn.innerHTML = document.body.classList.contains('sidebar-collapsed') ? '▶' : '☰'; 
       };
       updateIcon();
-      
+
+      // 4. Click Logic
       toggleBtn.addEventListener('click', function(e) {
         e.preventDefault();
         document.body.classList.toggle('sidebar-collapsed');
         localStorage.setItem('sidebar_collapsed', document.body.classList.contains('sidebar-collapsed'));
         updateIcon();
       });
+    } else {
+       // Keep icon synced if the app re-renders
+       const toggleBtn = document.getElementById('sidebar-toggle');
+       toggleBtn.innerHTML = document.body.classList.contains('sidebar-collapsed') ? '▶' : '☰';
     }
   }
+
   setupSidebar();
+
+  // Observer to ensure the button stays there if the app refreshes the page
   new MutationObserver(() => {
-    if (document.querySelector('.sidebar') && !document.getElementById('sidebar-toggle')) setupSidebar();
+    if (document.querySelector('.sidebar') && !document.getElementById('sidebar-toggle')) {
+      setupSidebar();
+    }
   }).observe(document.body, { childList: true, subtree: true });
+
 })();
 </script>
 </body>
