@@ -7408,133 +7408,183 @@ a[href^="#/invoice/"]:hover, a[href^="#/customer/"]:hover {
 </script>
  <style>
 /* ============================================================
-   PREMIUM GLASS SIDEBAR & COLLAPSE ANIMATION
+   FINAL VISIBILITY FIX & GLASS SIDEBAR + TOGGLE
    ============================================================ */
 
-/* 1. Make the Sidebar Pure Glass */
+/* 1. Darken the Background Image heavily so text is visible */
+body {
+  background-image: 
+    linear-gradient(rgba(8, 12, 10, 0.85), rgba(5, 8, 6, 0.95)), 
+    url('background.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-color: #000 !important;
+}
+
+/* 2. Make Cards "Smoked Glass" (Much darker, clear text) */
+.card, .dash-kpi, .dash-panel, .modal, .login-box, .calc, .ss-dropdown {
+  background: rgba(15, 23, 20, 0.85) !important; /* Darker, highly readable */
+  backdrop-filter: blur(28px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  color: #ffffff !important;
+}
+
+/* 3. Fix all Table Text & Inputs (Crystal Clear) */
+th { color: #a1a1aa !important; text-transform: uppercase; font-size: 11px !important; letter-spacing: 0.5px; }
+td, p, span, label, .dash-kpi-sub, .dash-kpi-label { 
+  color: #e2e8f0 !important; 
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; 
+}
+h1, h2, h3, .dash-kpi-value { 
+  color: #ffffff !important; 
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important; 
+}
+
+/* Table Row Hover */
+table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+}
+
+/* Inputs */
+.input, input.input, select.input, textarea.input {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+
+/* 4. Pure Glass Sidebar */
 .sidebar {
-  background: rgba(10, 15, 12, 0.45) !important; /* More transparent */
+  background: rgba(10, 15, 12, 0.6) !important;
   backdrop-filter: blur(40px) saturate(150%) !important;
   -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3) !important;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease !important;
-  overflow: hidden; /* Prevents text wrap during animation */
+  transition: width 0.3s ease, padding 0.3s ease !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 
-/* 2. Collapsed State (Vertical Pill) */
+/* 5. Collapsed Sidebar State */
 body.sidebar-collapsed .sidebar {
   width: 80px !important;
   padding: 16px 10px !important;
-  align-items: center;
 }
-
-body.sidebar-collapsed .brand {
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-body.sidebar-collapsed .brand-text {
-  display: none !important;
-}
-
-/* Hide text by setting font-size to 0, keep icons big */
-body.sidebar-collapsed .nav a {
-  justify-content: center !important;
-  padding: 12px 0 !important;
-  font-size: 0 !important; 
-}
-
-body.sidebar-collapsed .nav a span {
-  font-size: 20px !important;
-  margin: 0 !important;
-}
-
-/* Hide bottom buttons and Pro Plan pill when collapsed */
+body.sidebar-collapsed .brand-text,
+body.sidebar-collapsed .nav a span + *,
 body.sidebar-collapsed #btn-calc,
 body.sidebar-collapsed #btn-lang,
 body.sidebar-collapsed #btn-logout,
 body.sidebar-collapsed #sub-sidebar-pill {
   display: none !important;
 }
-
-/* Make the toggle button look good when collapsed */
-body.sidebar-collapsed #sidebar-toggle {
-  width: 40px !important;
-  padding: 8px !important;
+body.sidebar-collapsed .nav a {
+  justify-content: center !important;
+  padding: 12px 0 !important;
+}
+body.sidebar-collapsed .nav a span {
+  font-size: 20px !important;
+  margin: 0 !important;
+}
+body.sidebar-collapsed .brand {
+  justify-content: center !important;
 }
 
-/* Adjust main content smoothly */
-.layout > div {
-  transition: width 0.3s ease !important;
+/* Toggle Button Style */
+#sidebar-toggle {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transition: all 0.2s;
+}
+#sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>
 
 <script>
 /* ============================================================
-   SIDEBAR COLLAPSE LOGIC
+   BULLETPROOF SIDEBAR TOGGLE SCRIPT
    ============================================================ */
 (function() {
   'use strict';
 
-  const originalRenderLayout = window.renderLayout;
-  if (typeof originalRenderLayout !== 'function') return;
+  // Function to inject button and restore state
+  function setupSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
 
-  window.renderLayout = function() {
-    originalRenderLayout.apply(this, arguments);
-    
-    // Small delay to ensure sidebar is rendered in the DOM
-    setTimeout(() => {
-      const sidebar = document.querySelector('.sidebar');
-      if (!sidebar) return;
+    // 1. Restore state
+    if (localStorage.getItem('sidebar_collapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+
+    // 2. Inject Toggle Button if not exists
+    if (!document.getElementById('sidebar-toggle')) {
+      const toggleBtn = document.createElement('div');
+      toggleBtn.id = 'sidebar-toggle';
       
-      // 1. Restore saved state on page load
-      if (localStorage.getItem('sidebar_collapsed') === 'true') {
-        document.body.classList.add('sidebar-collapsed');
+      const brand = sidebar.querySelector('.brand');
+      if (brand) {
+        brand.parentNode.insertBefore(toggleBtn, brand.nextSibling);
+      } else {
+        sidebar.insertBefore(toggleBtn, sidebar.firstChild);
       }
-      
-      // 2. Inject the toggle button
-      if (!document.getElementById('sidebar-toggle')) {
-        const toggleBtn = document.createElement('button');
-        toggleBtn.id = 'sidebar-toggle';
-        toggleBtn.className = 'btn btn-ghost';
-        toggleBtn.style.cssText = `
-          width: 100%;
-          margin-bottom: 16px;
-          padding: 8px;
-          display: flex;
-          justify-content: center;
-          font-size: 18px;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        `;
-        
-        // Insert right after the brand/logo
-        const brand = sidebar.querySelector('.brand');
-        if (brand) {
-          brand.parentNode.insertBefore(toggleBtn, brand.nextSibling);
-        } else {
-          sidebar.insertBefore(toggleBtn, sidebar.firstChild);
-        }
-        
-        // Set correct icon based on current state
-        const updateIcon = () => {
-          const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-          toggleBtn.innerHTML = isCollapsed ? '▶' : '☰'; 
-        };
+
+      // 3. Update Icon
+      const updateIcon = () => {
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        // Change icon based on state
+        toggleBtn.innerHTML = isCollapsed ? '▶' : '☰'; 
+      };
+      updateIcon();
+
+      // 4. Click Logic
+      toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.body.classList.toggle('sidebar-collapsed');
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        localStorage.setItem('sidebar_collapsed', isCollapsed);
         updateIcon();
-        
-        // 3. Click logic
-        toggleBtn.onclick = function() {
-          document.body.classList.toggle('sidebar-collapsed');
-          const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-          localStorage.setItem('sidebar_collapsed', isCollapsed);
-          updateIcon();
-        };
+      });
+    } else {
+       // If button exists, just ensure icon is right
+       const toggleBtn = document.getElementById('sidebar-toggle');
+       const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+       toggleBtn.innerHTML = isCollapsed ? '▶' : '☰';
+    }
+  }
+
+  // Run on load
+  setupSidebar();
+
+  // The app re-renders the DOM frequently. 
+  // We use a MutationObserver to ensure the button stays injected.
+  const observer = new MutationObserver((mutations) => {
+    for (let mutation of mutations) {
+      if (mutation.addedNodes.length) {
+        // If a sidebar was added to the DOM, run setup
+        if (document.querySelector('.sidebar') && !document.getElementById('sidebar-toggle')) {
+          setupSidebar();
+        }
       }
-    }, 50);
-  };
+    }
+  });
+
+  // Start observing the body for changes
+  observer.observe(document.body, { childList: true, subtree: true });
+
 })();
 </script>
 </body>
