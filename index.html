@@ -7610,5 +7610,293 @@ body.sidebar-collapsed .nav a span {
   }
 }
 </style>
+   <script>
+/* ============================================================
+   FLOWFIN-STYLE DASHBOARD LAYOUT (Keeps Liquid Glass Style)
+   ============================================================ */
+(function() {
+  'use strict';
+
+  window.renderDashboard = function(content) {
+    const inv = DB.invoices;
+    const today = todayStr();
+
+    // --- METRICS ---
+    const totalSales = inv.reduce((s,i) => s + Number(i.total || 0), 0);
+    const todaySales = inv.filter(i => txDate(i,'invoice_date') === today).reduce((s,i) => s + Number(i.total || 0), 0);
+    const totalDue = inv.reduce((s,i) => s + Number(i.due || 0), 0);
+    const supDue = DB.suppliers.reduce((s,su) => s + supplierTotals(su.id).total_due, 0);
+    
+    let stockValue = 0;
+    DB.products.forEach(p => { stockValue += (Number(p.stock || 0) * Number(p.cost || 0)); });
+    
+    const low = DB.products.filter(p => isLowStock(p));
+    
+    // Recent Invoices (Top 5)
+    const recentInvoices = inv.slice().sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0)).slice(0, 5);
+
+    // --- HTML TEMPLATE ---
+    content.innerHTML = `
+      <style>
+        /* Custom Layout Grids for this specific dashboard */
+        .flowfin-kpi-grid {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        @media(max-width: 1200px) { .flowfin-kpi-grid { grid-template-columns: 1fr 1fr; } }
+        @media(max-width: 768px) { .flowfin-kpi-grid { grid-template-columns: 1fr; } }
+
+        .flowfin-split {
+          display: grid;
+          grid-template-columns: 2fr 1fr;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        @media(max-width: 1024px) { .flowfin-split { grid-template-columns: 1fr; } }
+
+        /* Main Highlighted Card (Like the purple one in reference) */
+        .flowfin-main-card {
+          background: linear-gradient(135deg, rgba(34, 197, 94, 0.85) 0%, rgba(22, 163, 74, 0.95) 100%) !important;
+          border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        }
+        
+        .flowfin-status-badge {
+          padding: 4px 10px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+        .flowfin-status-paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .flowfin-status-due { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+      </style>
+
+      <div class="dash-page" style="display:flex; flex-direction:column; gap:16px; padding-bottom: 40px;">
+        
+        <!-- HEADER -->
+        <div class="page-head" style="margin-bottom:0;">
+          <div>
+            <h1 style="font-size:24px; font-weight:700; letter-spacing:-0.5px;">Dashboard</h1>
+            <p style="color:var(--s400); font-size:13px; margin-top:4px;">Monitor your sales, dues, and inventory all in one place.</p>
+          </div>
+          <div class="page-actions" style="display:flex; gap:10px;">
+            <button class="btn btn-ghost" onclick="window.location.reload()">Refresh</button>
+            <a href="#/invoice/new" class="btn btn-primary">+ New Invoice</a>
+          </div>
+        </div>
+
+        <!-- TOP ROW: 4 KPI CARDS -->
+        <div class="flowfin-kpi-grid">
+          
+          <!-- Card 1 (Highlighted) -->
+          <div class="card flowfin-main-card" style="position:relative; overflow:hidden; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.9); text-transform:uppercase;">Total Sales</div>
+              <div style="background:rgba(255,255,255,0.2); border-radius:8px; padding:6px;">💰</div>
+            </div>
+            <div style="font-size:28px; font-weight:800; color:#fff; margin-top:12px;">${rs(totalSales)}</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:6px;">${inv.length} invoices • all time</div>
+            <!-- Decorative mini chart line -->
+            <div style="position:absolute; bottom:-5px; left:0; right:0; height:40px; background:rgba(0,0,0,0.1); mask-image: linear-gradient(to top, black, transparent);"></div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="card" style="padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:12px; font-weight:600; color:var(--s400); text-transform:uppercase;">Customer Due</div>
+              <div style="background:rgba(239,68,68,0.15); color:#f87171; border-radius:8px; padding:6px;">👥</div>
+            </div>
+            <div style="font-size:24px; font-weight:800; color:#f1f5f9; margin-top:12px;">${rs(totalDue)}</div>
+            <div style="font-size:12px; color:var(--s500); margin-top:6px;">Receivable from customers</div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="card" style="padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:12px; font-weight:600; color:var(--s400); text-transform:uppercase;">Supplier Due</div>
+              <div style="background:rgba(251,191,36,0.15); color:#fbbf24; border-radius:8px; padding:6px;">🚚</div>
+            </div>
+            <div style="font-size:24px; font-weight:800; color:#f1f5f9; margin-top:12px;">${rs(supDue)}</div>
+            <div style="font-size:12px; color:var(--s500); margin-top:6px;">Payable to suppliers</div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="card" style="padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:12px; font-weight:600; color:var(--s400); text-transform:uppercase;">Stock Value</div>
+              <div style="background:rgba(139,92,246,0.15); color:#a78bfa; border-radius:8px; padding:6px;">📦</div>
+            </div>
+            <div style="font-size:24px; font-weight:800; color:#f1f5f9; margin-top:12px;">${rs(stockValue)}</div>
+            <div style="font-size:12px; color:var(--s500); margin-top:6px;">${DB.products.length} products • at cost</div>
+          </div>
+
+        </div>
+
+        <!-- FILTER BAR (Visual placeholders mimicking reference) -->
+        <div class="card" style="padding:12px 16px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; border-radius:16px;">
+          <select class="input" style="width:auto; flex:1; max-width:200px; background:rgba(0,0,0,0.3);">
+            <option>All Customers</option>
+          </select>
+          <select class="input" style="width:auto; flex:1; max-width:200px; background:rgba(0,0,0,0.3);">
+            <option>All Statuses</option>
+            <option>Paid</option>
+            <option>Pending</option>
+          </select>
+          <input type="text" class="input" placeholder="Search invoice, customer..." style="flex:2; min-width:200px; background:rgba(0,0,0,0.3);">
+        </div>
+
+        <!-- MIDDLE ROW: Recent Invoices & Parties Overview -->
+        <div class="flowfin-split">
+          
+          <!-- Recent Invoices Table -->
+          <div class="card" style="padding:0; overflow:hidden;">
+            <div style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-weight:600; font-size:15px;">Recent Invoices</div>
+              <a href="#/invoices" style="font-size:12px; color:#86efac; font-weight:600;">View All</a>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr>
+                    <th style="padding:12px 20px; text-align:left; font-size:11px;">Invoice</th>
+                    <th style="padding:12px 20px; text-align:left; font-size:11px;">Customer</th>
+                    <th style="padding:12px 20px; text-align:right; font-size:11px;">Amount</th>
+                    <th style="padding:12px 20px; text-align:center; font-size:11px;">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${recentInvoices.length === 0 ? `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--s500);">No recent invoices</td></tr>` : 
+                    recentInvoices.map(i => {
+                      const c = DB.customers.find(x => x.id === i.customer_id);
+                      const isPaid = Number(i.due) <= 0;
+                      return `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                          <td style="padding:14px 20px; font-weight:600;"><a href="#/invoice/${i.id}" style="color:#86efac;">${i.invoice_no}</a></td>
+                          <td style="padding:14px 20px;">${esc(c?.name || 'Walk-in')}</td>
+                          <td style="padding:14px 20px; text-align:right; font-weight:600;">${rs(i.total)}</td>
+                          <td style="padding:14px 20px; text-align:center;">
+                            <span class="flowfin-status-badge ${isPaid ? 'flowfin-status-paid' : 'flowfin-status-due'}">
+                              ${isPaid ? 'Paid' : 'Pending'}
+                            </span>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Parties Overview (Right Side Panel) -->
+          <div class="card" style="display:flex; flex-direction:column;">
+            <div style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.05); font-weight:600; font-size:15px;">
+              Parties Overview
+            </div>
+            <div style="padding:20px; display:flex; flex-direction:column; gap:12px; flex:1; justify-content:center;">
+              <div style="background:rgba(59,130,246,0.15); border:1px solid rgba(96,165,250,0.2); border-radius:12px; padding:16px;">
+                <div style="font-size:11px; color:#93c5fd; font-weight:700; text-transform:uppercase;">Active Customers</div>
+                <div style="font-size:28px; font-weight:800; color:#60a5fa; margin-top:4px;">${DB.customers.length}</div>
+              </div>
+              
+              <div style="background:rgba(239,68,68,0.15); border:1px solid rgba(248,113,113,0.2); border-radius:12px; padding:16px;">
+                <div style="font-size:11px; color:#fca5a5; font-weight:700; text-transform:uppercase;">With Pending Due</div>
+                <div style="font-size:28px; font-weight:800; color:#f87171; margin-top:4px;">${DB.customers.filter(c => Number(c.due) > 0).length}</div>
+              </div>
+
+              <div style="background:rgba(34,197,94,0.15); border:1px solid rgba(74,222,128,0.2); border-radius:12px; padding:16px;">
+                <div style="font-size:11px; color:#86efac; font-weight:700; text-transform:uppercase;">Fully Cleared</div>
+                <div style="font-size:28px; font-weight:800; color:#4ade80; margin-top:4px;">${DB.customers.filter(c => Number(c.due) <= 0).length}</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM ROW: Analytics & Low Stock -->
+        <div class="flowfin-split">
+          
+          <!-- Sales Trend Chart -->
+          <div class="card" style="padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="font-weight:600; font-size:15px;">Sales Trend (30 Days)</div>
+            </div>
+            <div style="position:relative; height:280px;">
+              <canvas id="flowfinSalesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Low Stock Alerts -->
+          <div class="card" style="padding:0; overflow:hidden; display:flex; flex-direction:column;">
+            <div style="padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.05); font-weight:600; font-size:15px;">
+              Low Stock Alerts
+            </div>
+            <div style="padding:16px; overflow-y:auto; max-height:280px; flex:1;">
+              ${low.length === 0 ? '<div style="text-align:center; padding:20px; color:var(--s500);">All products well-stocked 🎉</div>' : 
+                low.slice(0, 6).map(p => `
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.03);">
+                    <div style="font-size:13px; font-weight:500;">${esc(p.name)}</div>
+                    <div style="font-size:12px; color:#f87171; font-weight:600;">${productDisplay(p).stockLabel}</div>
+                  </div>
+                `).join('')}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+    // --- INITIALIZE CHART.JS (Sales Trend) ---
+    setTimeout(() => {
+      const canvas = document.getElementById('flowfinSalesChart');
+      if (!canvas) return;
+      if (window._flowfinChart) { try { window._flowfinChart.destroy(); } catch(e){} }
+      
+      const dayMap = {};
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        dayMap[d.toISOString().slice(0,10)] = 0;
+      }
+      inv.forEach(i => {
+        const d = txDate(i,'invoice_date');
+        if (dayMap[d] !== undefined) dayMap[d] += Number(i.total || 0);
+      });
+
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 280);
+      grad.addColorStop(0, 'rgba(34,197,94,0.4)');
+      grad.addColorStop(1, 'rgba(34,197,94,0.0)');
+
+      window._flowfinChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Object.keys(dayMap).map(d => d.slice(5)),
+          datasets: [{
+            data: Object.values(dayMap),
+            borderColor: '#22c55e',
+            backgroundColor: grad,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }
+          }
+        }
+      });
+    }, 100);
+  };
+})();
+</script>
 </body>
 </html>
