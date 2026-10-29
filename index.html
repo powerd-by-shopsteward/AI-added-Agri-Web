@@ -92,48 +92,6 @@ tr:hover td{background:var(--s50)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media print{body *{visibility:hidden!important}#print-area,#print-area *{visibility:visible!important}#print-area{position:absolute!important;left:0!important;top:0!important;width:100%!important;box-shadow:none!important;border:0!important;padding:0!important}body{background:#fff!important}#toast-root,#modal-root,#calc-root{display:none!important}}
 @media(max-width:768px){.sidebar{display:none}.mobile-header{display:flex}.main{padding:12px}}
-
-/* ===== PC LAYOUT FIXES ===== */
-@media (min-width: 1024px) {
-
-  /* Full-width shell instead of 1600px cap */
-  .layout { max-width: none !important; }
-  .sidebar { width: 250px !important; }
-
-  /* Comfortable reading column with real breathing room */
-  .main {
-    max-width: 1400px !important;
-    padding: 28px 40px 48px !important;
-    margin: 0 auto !important;
-  }
-
-  /* Bigger, more readable text at desktop sizes */
-  body         { font-size: 15px; }
-  td, th       { padding: 14px 14px !important; font-size: 14px !important; }
-  .label       { font-size: 13px !important; }
-  .input       { padding: 10px 14px !important; font-size: 14px !important; }
-  .btn         { padding: 9px 18px !important; font-size: 13px !important; }
-
-  /* KPI / stat tiles: 4 across on wide, 3 on medium */
-  .grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)) !important; }
-  .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)) !important; }
-  .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
-}
-
-/* Dashboard KPI row: auto-wrap instead of crushing 6 into one row */
-.dash-kpi-grid {
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
-}
-
-/* Products: don't stretch cards to 400px+ on wide screens */
-#prod-grid {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
-  gap: 14px;
-}
-
-/* Never let a table push the page sideways */
-.main .card table { min-width: 0; }
-.main .card { overflow-x: auto; }
       
 </style>
 <style>
@@ -5147,18 +5105,6 @@ tr:hover td { background: rgba(230, 240, 250, 0.55) !important; }
 })();
 </script>
 <style>
-/* ============================================================
-   1. PC OPTIMIZATION
-   ============================================================ */
-@media (min-width: 1024px) {
-  .layout { max-width: 1600px; margin: 0 auto; box-shadow: 0 0 40px rgba(0,0,0,0.05); }
-  .main { max-width: 1300px !important; padding: 30px !important; }
-  body { font-size: 15px; }
-  td, th { padding: 16px 12px !important; }
-  .grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-  .grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-  .grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-}
 
 /* ============================================================
    2. CARD HOVER (Lift + Glow, excluding specific cards)
@@ -7623,5 +7569,46 @@ body.sidebar-collapsed .nav a span {
 
 })();
 </script>
+   <style>
+/* ============================================================
+   FINAL PC OPTIMIZATION (LAYOUT ONLY)
+   ============================================================ */
+@media (min-width: 1024px) {
+  
+  /* 1. Unlock the width so it fills the screen */
+  .layout { 
+    max-width: none !important; 
+  }
+  
+  /* 2. Give the main content room to breathe */
+  .main { 
+    max-width: 1600px !important; 
+    padding: 40px 50px !important; 
+    margin: 0 auto !important; 
+  }
+
+  /* 3. Fix the Dashboard KPI Cards (Force 5 in a row on large screens) */
+  .dash-kpi-grid { 
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important; 
+    gap: 16px !important;
+  }
+
+  /* 4. Spread out standard grids */
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+  /* 5. Better table spacing for desktop */
+  td, th { 
+    padding: 16px 20px !important; 
+    font-size: 14px !important;
+  }
+
+  /* 6. Slightly larger font for the body */
+  body { 
+    font-size: 15px; 
+  }
+}
+</style>
 </body>
 </html>
